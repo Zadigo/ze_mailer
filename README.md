@@ -1,6 +1,35 @@
 # ze_mailer
 A complete email tool for growth hacking
 
+# Configuration
+
+The main configuration parameters for the application can be found in the `ze_mailer.app.core.settings` module. It returns an Ordered Dictionnary of values.
+
+They are wrapped within he `Configuration` class and then initialized or instanciated in the `configuration` parameter.
+
+For instance, if you want to add or change a parameter you would do the following:
+
+```
+configuration[my_configuration] = my_value
+
+_...The rest of your code..._
+```
+
+You can also retrieve values just like as you would with a dictionnary by doing this:
+
+```
+item = configuration[key]
+```
+
+## Calling the instance
+
+As seen above, you can change items by passing a key and a value. However, you can also call the instance and pass JSON file path containing variables:
+
+```
+new_settings = configuration(file_path=path_to_file)
+```
+
+This returns an updated version of the settings.
 
 # Emails
 ## Servers
@@ -58,7 +87,11 @@ from ze_mailer.app.core.senders import SendEmail
 sender = SendEmail('from_email@gmail.com', 'to_email@gmail.com', 'Welcome to Mars', user='user', password='password')
 ```
 
-Use the method that suits you best.
+Finally, with the last method, you can set environment variables using `ZEMAILER_USER` and `ZEMAILER_PASSWORD` to the values that you want.
+
+The important thing to understand is the server will search for the credentials in these three places before calling the `CredentialsError` if user and password are not set.
+
+The search order is the following: user provided > configuration > environment.
 
 ## Sending the email
 
