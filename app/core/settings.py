@@ -9,6 +9,8 @@ import os
 from collections import OrderedDict
 from configparser import ConfigParser
 
+from ze_mailer.app.core.fileopener import FilesObject
+
 
 class Configuration:
     """This is the base class to configure the application. 
@@ -21,7 +23,7 @@ class Configuration:
         # Root path
         settings['base_dir'] = os.getcwd()
 
-        # Data directory path
+        # Data directory path within the application
         settings['data_dir'] = os.path.join(settings['base_dir'], 'app', 'data')
 
         # Settings for the SMTP server
@@ -52,10 +54,15 @@ class Configuration:
             ]
         }
 
+        # The main directory in which to output
+        # files that were created
+        settings['output_dir'] = os.path.join(os.environ['HOMEDRIVE'], os.path.join('HOMEPATH'), 'Documents')
+
         # Extension to use by default
         # when creating a file
         settings['output_extension'] = 'csv'
 
+        # Configuration for the servers
         settings['server_config'] = {
             'default': {
                 'name': 'google',
@@ -108,5 +115,11 @@ class Configuration:
                 self.settings.update(**additional_settings)
 
         return self.settings
+
+    def data_dir_files(self):
+        """Get the files in the data directory
+        """
+        filesobject = FilesObject()
+        return filesobject.scan_directory(self.settings['data_dir'])
 
 configuration = Configuration()
