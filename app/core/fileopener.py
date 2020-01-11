@@ -1,6 +1,5 @@
 import csv
 import os
-# from ze_mailer.app.core.settings import configuration
 from collections import OrderedDict
 from pathlib import Path
 
@@ -22,11 +21,6 @@ class FilesObject:
             raise
         return item
 
-    def __getattribute__(self, name):
-        if name == 'files' and len(self.files) == 0:
-            return []
-        return super().__getattribute__(name)
-
     def __setattr__(self, name, value):
         if name == 'files':
             if not isinstance(value, (dict, OrderedDict)):
@@ -43,7 +37,6 @@ class FilesObject:
         file_item = {
             name: {
                 'extension': extension,
-                'path': full_path,
                 'object': Path(full_path)
             }
         }
@@ -53,11 +46,11 @@ class FilesObject:
     def get_object(cls, key):
         """Gets a file and returns the Path() element
         """
-        selected_file = cls.__getitem__(key)
+        selected_file = cls.__getitem__(cls, key)
         return selected_file['object']
 
     @classmethod
-    def scan_directory(cls, directory_path, exclude_files: list=None, *args):
+    def scan_directory(cls, directory_path, exclude_files: list=[], *args):
         """Scans the data directory in order to get
         all the files within it and return and the object
         elements
@@ -78,13 +71,13 @@ class FilesObject:
         # If there are no files in the directory or there
         # someking of mishap where the wrong directory is
         # selected for example, return empy generator
-        filenames = list(os.walk(directory_path))
+        filenames = list(os.walk(directory_path))[0][2]
         if len(filenames) == 0:
             return cls
 
         for filename in filenames:
             if filename not in exclude_files:
-                cls.append(directory_path, filename)
+                cls.append(cls, directory_path, filename)
         return cls
 
 class FileOpener(UtilitiesMixin):
@@ -105,12 +98,12 @@ class FileOpener(UtilitiesMixin):
         # and store the csv's content
         self.csv_content = self.normalize_names(csv_content)
 
-    def print_to_file(self, file_path):
-        with open(file_path, 'w', encoding='utf-8') as f:
+class FileWriter:
+    def create_file(self, file_path, headers:list, data:list, file_name=None):
+        with open(file_path, 'w', encoding='utf-8', newline='\n') as f:
             # Recompose the header and the content
-            data = self.csv_content.prepend(self.headers)
+            # data.insert(0, headers)
             csv_file = csv.writer(f)
             for row in data:
                 csv_file.writerow(row)
-        return Info('Wrote %s names to %s' % (len(self.csv_content), os.path.basename(file_path)))
-# FileOpener(file_path=configuration['dummy_file'])
+        return Info('Wrote %s names to %s' % (len(data), os.path.basename(file_path)))
