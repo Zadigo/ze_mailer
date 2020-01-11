@@ -2,6 +2,7 @@ import csv
 import os
 import re
 
+from ze_mailer.app.core.mixins.utilities import UtilitiesMixin
 from ze_mailer.app.core.errors import SeparatorError
 from ze_mailer.app.core.fileopener import FileOpener, FileWriter
 from ze_mailer.app.core.messages import Info
@@ -174,67 +175,72 @@ class NamesAlgorithm(FileOpener, FileWriter):
         full_path = os.path.join(configuration['output_dir'], file_name)
         super().create_file(full_path, ['name', 'emails'], self.construct_pattern())
 
-# class SimpleNamesAlgorithm:
-#     """Use this class to construct a list of of multiple emails 
-#     from scratch providing a person's `name` or a `filepath` 
-#     containing people's names.
-#     Contrarily to the other classes, this class in particular does
-#     not need to be subclassed to be used.
+class SimpleNamesAlgorithm(UtilitiesMixin):
+    """Use this class to construct a list of of multiple emails 
+    from scratch providing a person's `name` or a `filepath` names.
+
+    Contrarily to the other classes, this class in particular does
+    not need to be subclassed to be used.
     
-#     Description
-#     -----------
-#     This will take a name and create patterns with all provided domains.
-#     Ex. with `Aurélie Konaté`
-#         [
-#             'aurelie.konate@gmail.com', 'aurelie.konate@outlook.com', 
-#             'aurelie-konate@gmail.com', 'aurelie-konate@outlook.com', 
-#             'aurelie_konate@gmail.com', 'aurelie_konate@outlook.com'
-#         ]
-#     You can use this class directly as an iterable to output the values to a given file:
-#         with open(file_path, 'w') as f:
-#             f.writelines(BasicPatterns('Aurélie Konaté'))
-#     Parameters
-#     ----------
-#     `name_or_filepath` is a single string name or a file path containing a list of names
+    Description
+    -----------
+    This will take a name and create patterns with all provided domains.
     
-#     `separators` contains a list of separators to use in order to create the email patterns
-#     `domains` is the list of all the domains that you wish to use to construct the emails
-#     """
-#     def __init__(self, name_or_filepath, separators=['.', '-', '_'], 
-#                     domains=['gmail', 'outlook']):
-#         patterns = []
+    Ex. with `Aurélie Konaté`
 
-#         # BUG: For now, this class can only deal with a single 
-#         # name and we need to find a way to implement multiple
-#         # names...
-#         # Check if the provided element is a path
-#         # is_path = re.match(r'(?:\\)(\w+)(?=(\.\w+))', name_or_filepath)
-#         # if is_path:
-#         #     # Open the file, get the names and send them
-#         #     # to be splitted in order to create the emails
-#         #     obj = FileOpener(name_or_filepath)
-#         #     names = self.split_multiple(obj.csv_content)
+        [
+            'aurelie.konate@gmail.com', 'aurelie.konate@outlook.com', 
+            'aurelie-konate@gmail.com', 'aurelie-konate@outlook.com', 
+            'aurelie_konate@gmail.com', 'aurelie_konate@outlook.com'
+        ]
 
-#         # else:
-#         # For single names, use this technique
-#         name = self.splitter(self.flatten_name(name_or_filepath))
+    You can use this class directly as an iterable to output the values to a given file:
+        with open(file_path, 'w') as f:
+            f.writelines(BasicPatterns('Aurélie Konaté'))
 
-#         # Create occurences
-#         for separator in separators:
-#             for domain in domains:
-#                 pattern = f'{name[0]}{separator}{name[1]}@{domain}.com'
-#                 patterns.append(pattern)
-#         self.patterns = patterns
+    Parameters
+    ----------
+    `name_or_filepath` is a single string name or a file path containing a list of names
+    
+    `separators` contains a list of separators to use in order to create the email patterns
+    `domains` is the list of all the domains that you wish to use to construct the emails
+    """
 
-#     def __str__(self):
-#         return str(self.patterns)
+    def __init__(self, name_or_filepath, separators=['.', '-', '_'], 
+                    domains=['gmail', 'outlook']):
+        patterns = []
 
-#     def __repr__(self):
-#         return '%s(%s)' % (self.__class__.__name__, str(self.patterns))
+        # BUG: For now, this class can only deal with a single 
+        # name and we need to find a way to implement multiple
+        # names...
+        # Check if the provided element is a path
+        # is_path = re.match(r'(?:\\)(\w+)(?=(\.\w+))', name_or_filepath)
+        # if is_path:
+        #     # Open the file, get the names and send them
+        #     # to be splitted in order to create the emails
+        #     obj = FileOpener(name_or_filepath)
+        #     names = self.split_multiple(obj.csv_content)
 
-#     def __getitem__(self, index):
-#         return str(self.patterns[index])
+        # else:
+        # For single names, use this technique
+        name = self.split_name(self.flatten_name(name_or_filepath))
 
-#     def append(self, value):
-#         self.patterns.append(value)
-#         return self.__str__()
+        # Create occurences
+        for separator in separators:
+            for domain in domains:
+                pattern = f'{name[0]}{separator}{name[1]}@{domain}.com'
+                patterns.append(pattern)
+        self.patterns = patterns
+
+    def __str__(self):
+        return str(self.patterns)
+
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, str(self.patterns))
+
+    def __getitem__(self, index):
+        return str(self.patterns[index])
+
+    def append(self, value):
+        self.patterns.append(value)
+        return self.patterns
