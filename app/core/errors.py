@@ -19,3 +19,7 @@ class NoServerError(BaseErrors):
 class FileTypeError(BaseErrors):
     def __init__(self, message, file_path):
         super().__init__(message)
+
+class SeparatorError(BaseErrors):
+    def __init__(self, message=None):
+        super().__init__('The separator you provided should be one of ". - _"')
