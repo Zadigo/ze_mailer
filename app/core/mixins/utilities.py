@@ -38,8 +38,11 @@ class UtilitiesMixin:
 
     @classmethod
     def normalize_names(cls, names:list):
-        for index, name in names:
-            names[index] = cls.normalize_name(name)
+        for index, name in enumerate(names):
+            # TODO: Cases where the array contains
+            # two names - Build something
+            # [Eugénie Bouchard, ...]
+            names[index][0] = cls.normalize_name(name[0])
         return names
 
     @classmethod
