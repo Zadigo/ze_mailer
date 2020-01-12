@@ -1,5 +1,5 @@
 from ze_mailer.app.core.messages import Info
-
+import re
 
 class UtilitiesMixin:
     """A mixin used to extend classes with various definitions on 
