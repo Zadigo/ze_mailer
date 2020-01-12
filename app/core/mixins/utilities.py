@@ -5,9 +5,21 @@ class UtilitiesMixin:
     """A mixin used to extend classes with various definitions on 
     repetitive tasks on names such as normalizing them etc.
     """
-
     @staticmethod
-    def split_name(name):
+    def check_name_structure(name):
+        """Check the structure of a name. Sometimes, we might
+        get names like 'eugenie bouchard' or 'eugenie' and we
+        have to able to distinguish that
+        """
+        is_normal = re.match(r'^(?:\w+\s?)+$', name)
+        is_single = re.match(r'^(?:\w+)$', name)
+
+        if is_normal:
+            return {'regex': is_normal, 'match': 'normal'}
+        else:
+            return {'regex': is_single, 'match': 'single'}
+
+    def split_name(self, name):
         """Create an array with a single name by splitting it.
 
         Result
