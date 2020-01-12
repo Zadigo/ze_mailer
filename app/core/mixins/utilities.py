@@ -27,6 +27,15 @@ class UtilitiesMixin:
         
         `Eugénie Bouchard` becomes `[Eugénie, Bouchard]`.
         """
+        # We have to assert through a regex
+        # that we are getting a classic pattern:
+        # 'eugenie bouchard' as opposed to 'eugenie'
+        check = self.check_name_structure(name)
+        if check['match'] == 'single':
+            # If we do not have a match,
+            # it means that the name is a single
+            # element and need to return as is
+            return name
         return name.split(' ')
 
     @classmethod
