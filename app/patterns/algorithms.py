@@ -210,27 +210,48 @@ class SimpleNamesAlgorithm(UtilitiesMixin):
                     domains=['gmail', 'outlook']):
         patterns = []
 
-        # BUG: For now, this class can only deal with a single 
-        # name and we need to find a way to implement multiple
-        # names...
-        # Check if the provided element is a path
-        # is_path = re.match(r'(?:\\)(\w+)(?=(\.\w+))', name_or_filepath)
-        # if is_path:
-        #     # Open the file, get the names and send them
-        #     # to be splitted in order to create the emails
-        #     obj = FileOpener(name_or_filepath)
-        #     names = self.split_multiple(obj.csv_content)
+        # We have to check whether name_or_filepath
+        # is a path, a comma separated list or
+        # a list containing names
+        if isinstance(name_or_filepath, list):
+            self.patterns = self.create_multiple_emails(name_or_filepath, separators, domains)
 
-        # else:
-        # For single names, use this technique
-        name = self.split_name(self.flatten_name(name_or_filepath))
+        elif ',' in name_or_filepath:
+            # Do something here when we receive
+            # comma separated names:
+            # "eugenie  bouchard, kendall jenner"
+            has_match = re.match(r'(\w+\s?\w+\,?)+', name_or_filepath)
+            if has_match:
+                names = name_or_filepath.split(',')
+                self.patterns = self.create_multiple_emails(names, separators, domains)
 
-        # Create occurences
-        for separator in separators:
-            for domain in domains:
-                pattern = f'{name[0]}{separator}{name[1]}@{domain}.com'
-                patterns.append(pattern)
-        self.patterns = patterns
+        elif os.path.exists(name_or_filepath):
+            if not name_or_filepath.endswith('.csv'):
+                pass
+            with open(name_or_filepath, 'r', encoding='utf-8') as f:
+                csv_file = csv.reader(f)
+                # Pop the headers
+                csv_file.pop(0)
+                names = self.split_multiple_names(csv_file)
+        else:
+            name = self.split_name(self.flatten_name(name_or_filepath))
+
+            # In the case the name is just a
+            # single as opposed to a list,
+            # we just have to return the name
+            # the remaining domain
+            if not isinstance(name, list):
+                for domain in domains:
+                    pattern = f'{name}@{domain}.com'
+                    patterns.append(pattern)
+                self.patterns = patterns
+            else:
+                # Create occurences
+                for separator in separators:
+                    for domain in domains:
+                        pattern = f'{name[0]}{separator}{name[1]}@{domain}.com'
+                        patterns.append(pattern)
+                self.patterns = patterns
 
     def __str__(self):
         return str(self.patterns)
