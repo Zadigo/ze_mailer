@@ -265,3 +265,17 @@ class SimpleNamesAlgorithm(UtilitiesMixin):
     def append(self, value):
         self.patterns.append(value)
         return self.patterns
+
+    def create_multiple_emails(self, names:list, separators:list, domains:list):
+        """A definition for creating and generating multiple email addresses with
+        multiple different names in a list
+        """
+        patterns = []
+        for name in names:
+            name = self.normalize_name(name)
+            splitted_name = self.split_name(name)
+            for separator in separators:
+                for domain in domains:
+                    pattern = f'{splitted_name[0]}{separator}{splitted_name[1]}@{domain}.com'
+                    patterns.append(pattern)
+        return patterns
