@@ -1,5 +1,5 @@
-# ze_mailer
-A complete email tool for growth hacking
+# Ze Emailer
+A complete email tool that helps generate emails from people's name and surname for growth hacking.
 
 # Configuration
 
@@ -11,8 +11,6 @@ For instance, if you want to add or change a parameter you would do the followin
 
 ```
 configuration[my_configuration] = my_value
-
-_...The rest of your code..._
 ```
 
 You can also retrieve values just like as you would with a dictionnary by doing this:
@@ -31,10 +29,10 @@ new_settings = configuration(file_path=path_to_file)
 
 This returns an updated version of the settings.
 
-# Emails
+# Sending emails
 ## Servers
 
-The application comes with custom emeail servers that you can use to send emails using Gmail or Outlook. They derive from the `BaseServer` class which you can subclass to create a custom server of your own.
+The application comes with custom email server that you can use to send emails using Gmail or Outlook. They derive from the `BaseServer` class which you can subclass to create a custom server of your own.
 
 You can initialize a server using two methods: __configuration__ or __class parameters__.
 
@@ -51,10 +49,10 @@ server = Gmail()
 ```
 from ze_mailer.app.core.servers import Gmail
 
-server = Gmail(user='email@gmail.com', password='gmail')
+server = Gmail(user=email@gmail.com, password=gmail)
 ```
 
-__NOTE:__ Servers aren't to be used directly though you can if you want to. They are to be subclassed by a class that will server as the main entrypoint for sending emails.
+__NOTE:__ Servers aren't to be used directly though you can if you want to. They are to be subclassed by a class that will serve as the main entrypoint for sending emails.
 
 # Senders
 
@@ -96,3 +94,42 @@ The search order is the following: user provided > configuration > environment.
 ## Sending the email
 
 Once you've called the __SendEmail__ or __SendEmailWithAttachment__ class, the email is then automatically sent using the \_\_init\_\_. 
+
+# Generating emails
+
+Suppose you have a list of names and you want to generate emails from that list in order to send. Here's how you can proceed.
+
+The main class for generating emails can be found in __ze_emailer.app.patterns__. It is composed of three main modules but the one that will interest us is the __base module__.
+
+There are two ways to generate emails:
+
+    - NamePatterns
+    - SimpleNamesAlgorithm
+
+## Subclassing NamesPatterns
+
+This class was created with the specific objective of being able to create custom email generation classes.
+
+For instance, let's say we wanted to create a custom class for _myenterprise.fr_:
+
+```
+class MyEnterprise(NamesPatterns):
+    pattern = name.surname
+    domain = myenterprise.fr
+    particle = None
+
+MyEnterprise(file_path=/path/to/file)
+```
+
+It's that easy! By executing the class, we can get emails from names such as `name.surname@myenterprise.fr`
+
+## Using SimpleNamesAlgorithm
+
+There might be cases where you do not want to create a custom class but just want to generate emails inline. In which case, the simple names algorithm does exactly that.
+
+```
+from ze_emailer.app.patterns.algorithms import SimpleNamesAlgorithm
+
+SimpleNamesAlgorithm(path/to/file, separators=[., -, _], domains=[gmail, outlook])
+```
+The result is then exactly the same as using the NamesPatterns as a super class.
