@@ -8,6 +8,26 @@ from ze_mailer.app.core.fileopener import FileOpener, FileWriter
 from ze_mailer.app.core.messages import Info
 from ze_mailer.app.core.settings import configuration
 
+# e = 'r'
+# u = 'paramount'
+# s = re.sub(r'^(n)(\W?)(prenom)', rf'\0{e}\2{u}', 'nprenom@gmail.com')
+# print(s)
+
+REGEX_PATTERNS = [
+    # nprenom
+    r'^(?P<nom>n)(?P<prenom>prenom)$',
+    # pnom
+    r'^(?P<prenom>p)(?P<nom>nom)$',
+    # p.nom
+    r'^(?P<prenom>p)(?P<separator>\S)+(?P<nom>nom)$',
+    # n.prenom
+
+    # prenom.nom
+    r'^(?P<prenom>prenom)(?P<separator>\S)+(?P<nom>nom)$',
+    # nom.prenom
+    r'^(?P<nom>nom)(?P<separator>\S)+(?P<prenom>prenom)$'
+]
+
 
 class NamesAlgorithm(FileOpener, FileWriter):
     """Subclass this class and build basic email patterns such 
